@@ -1,46 +1,21 @@
-import React from 'react';
-import { View } from 'react-native';
-
-const styles = {
-  board: {
-    margin: 20,
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: 'rgb(32, 0, 64)',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.35,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  row: {
-    display: 'flex',
-    flexDirection: 'row',
-  },
-};
+import BoardCell from './BoardCell';
+import './styles.css';
 
 const Board = ({ board }) => {
     const boardStyles = {
-      flexDirection: 'column',
-      flex: 1,
+        gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
+        gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`
     };
-  
+
     return (
-      <View style={[styles.board, boardStyles]}>
-        {board.rows.map((row, y) => (
-          <View key={`row-${y}`} style={styles.row}>
-            {row.map((cell, x) => (
-              <BoardCell key={`cell-${x}`} cell={cell} />
-            ))}
-          </View>
-        ))}
-      </View>
+        <div className='Board' style={boardStyles}>
+            {board.rows.map((row, y) =>
+                row.map((cell, x) => (
+                    <BoardCell key={x * board.size.columns + x} cell={cell} />
+                ))
+            )}
+        </div>
     );
-  };
-  
-  export default Board;
-  
+};
+
+export default Board;

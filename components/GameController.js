@@ -1,51 +1,66 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
-import Game from './Game';
+import "./styles.css";
 
-const GameController = () => {
-  const [gameStarted, setGameStarted] = useState(false);
+import { playerController } from "../business/PlayerController";
+import { Action, actionForKey, actionIsDrop } from "../business/Input";
 
-  const handleStartGame = () => {
-    setGameStarted(true);
+import { useInterval } from "../hooks/useInterval";
+import { useDropTime } from "../hooks/useDropTime";
+
+const GameController = ({
+    board,
+    gameStats,
+    player,
+    setGameOver,
+    setPlayer
+}) => {
+    const [dropTime, pauseDropTime, resumeDropTime] = useDropTime({
+        gameStats
+    });
+
+    useInterval(() => {
+        handleInput({ action: Action.SlowDrop });
+      }, dropTime);
+
+    const onKeyUp = ({ code }) => {
+        const action = actionForKey(code);
+        if (actionIsDrop(action)) resumeDropTime();
+    };
+    
+    const onKeyDown = ({ code }) => {
+        const action = actionForKey(code);
+
+        if (action === Action.Pause) {
+            if (dropTime) {
+              pauseDropTime();
+            } else {
+              resumeDropTime();
+            }
+          } else if (action === Action.Quit) {
+            setGameOver(true);
+          } else {
+            if (actionIsDrop(action)) pauseDropTime();
+            handleInput({ action });
+          }
+    };
+
+    const handleInput = ({ action }) => {
+    playerController({
+      action,
+      board,
+      player,
+      setPlayer,
+      setGameOver
+    });
   };
-
-  return (
-    <View style={styles.container}>
-      {gameStarted ? (
-        <Game />
-      ) : (
-        <>
-          <Text style={styles.title}>Tetris</Text>
-          <TouchableOpacity style={styles.button} onPress={handleStartGame}>
-            <Text style={styles.buttonText}>Start Game</Text>
-          </TouchableOpacity>
-        </>
-      )}
-    </View>
-  );
+    return (
+        <input 
+            className="GameController" 
+            type="text" 
+            onKeyDown={onKeyDown}
+            onKeyUp={onKeyUp}
+            autoFocus
+        />
+    );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 40,
-    marginBottom: 30,
-  },
-  button: {
-    backgroundColor: '#333',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 20,
-  },
-});
 
 export default GameController;
