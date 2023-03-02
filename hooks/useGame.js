@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Dimensions } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
+import { useWindowDimensions } from 'react-native';
 
-import { BLOCK_SIZE, LINES_PER_LEVEL, SCORES } from '../constants';
+import { LINES_PER_LEVEL, SCORES } from '../constants';
 
 const useGame = (callback) => {
   const [board, setBoard] = useState([]);
@@ -11,13 +11,12 @@ const useGame = (callback) => {
   const [level, setLevel] = useState(0);
   const [lines, setLines] = useState(0);
 
-  const { height } = Dimensions.get('window');
+  const { height } = useWindowDimensions();
   const gameHeight = height - 200;
 
   const resetGame = useCallback(() => {
     setBoard(Array.from({ length: 20 }, () => Array(10).fill(0)));
     setCurrentBlock(null);
-    setIsPlaying(false);
     setScore(0);
     setLevel(0);
     setLines(0);
@@ -95,7 +94,7 @@ const useGame = (callback) => {
   
   const dropBlock = useCallback(() => {
     if (!moveBlock(0, 1)) {
-      updateBoard((prevBoard) => {
+      setBoard((prevBoard) => {
         const newBoard = prevBoard.map((row) => [...row]);
         const { blocks, x: currentX, y: currentY } = currentBlock;
   
@@ -129,7 +128,7 @@ const useGame = (callback) => {
   
         return newBoard;
       });
-      setCurrentBlock(nextBlock);
+      setCurrentBlock(null);
     }
   }, [board, currentBlock, level, lines, updateBoard, updateScore]);
   
@@ -145,3 +144,4 @@ const useGame = (callback) => {
   
   return { board, currentBlock, isPlaying, resetGame, setPlaying, score, level, lines, moveBlock, rotateBlock };
 }  
+ export default useGame;
