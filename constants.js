@@ -6,4 +6,3 @@ export const SCORES = {
   TRIPLE: 500,
   TETRIS: 800,
 };
-exp
